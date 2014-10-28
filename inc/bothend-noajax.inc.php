@@ -19,7 +19,15 @@ function bawmrp_get_all_related_posts( $post ) {
 	return $related_posts;
 }
 
-function bawmrp_get_related_posts( $post_id, $only_published=true ) {
+/**
+ * Get the related posts list
+ * @global wpdb $wpdb
+ * @param int $post_id
+ * @param bool $only_published
+ * @param bool $twoway Should the posts be linked to each other?
+ * @return string
+ */
+function bawmrp_get_related_posts( $post_id, $only_published=true, $twoway=true ) {
 	global $wpdb;
 	$bawmrp_options = get_option( 'bawmrp' );
 	$ids = get_post_meta( $post_id, '_yyarpp', true );
@@ -28,14 +36,16 @@ function bawmrp_get_related_posts( $post_id, $only_published=true ) {
 	} else {
 		$ids = ! empty( $ids ) ? implode( ',', wp_parse_id_list( $ids ) ) : array();
 	}
-	$ids_bonus = $wpdb->get_row( "SELECT group_concat(post_id) as ids FROM $wpdb->postmeta WHERE post_id != {$post_id} AND meta_key='_yyarpp' AND concat(',',meta_value,',') LIKE '%,{$post_id},%'" );
-	if ( ! is_admin() && reset( $ids_bonus ) ) {
-		if ( ! is_array( $ids ) ) {
-			$ids .= ',' . reset( $ids_bonus );
-		}else{
-			$ids[] = reset( $ids_bonus );
-		}
-	}
+        if ($twoway == true) {
+            $ids_bonus = $wpdb->get_row( "SELECT group_concat(post_id) as ids FROM $wpdb->postmeta WHERE post_id != {$post_id} AND meta_key='_yyarpp' AND concat(',',meta_value,',') LIKE '%,{$post_id},%'" );
+            if ( ! is_admin() && reset( $ids_bonus ) ) {
+                    if ( ! is_array( $ids ) ) {
+                            $ids .= ',' . reset( $ids_bonus );
+                    }else{
+                            $ids[] = reset( $ids_bonus );
+                    }
+            }
+        }
 	return $ids;
 }
 
