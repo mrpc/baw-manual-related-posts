@@ -41,7 +41,7 @@ function bawmrp_ajax_find_posts()
 		wp_die( $posttype->labels->not_found );
 	}
 
-	$html = '<table class="widefat" cellspacing="0"><thead><tr><th class="found-radio"><br /></th><th>'.__('Title').'</th><th>'.__('Type').'</th><th>'.__('Date').'</th><th>'.__('Status').'</th></tr></thead><tbody>';
+	$html = '<table class="widefat" cellspacing="0"><thead><tr><th class="found-radio"><br /></th><th>'.__('Title').'</th><th>'.__('Type').'</th><th>'.__('Category').'</th><th>'.__('Date').'</th><th>'.__('Status').'</th></tr></thead><tbody>';
 	foreach ( $posts as $post ) {
 
 		switch ( $post->post_status ) {
@@ -67,8 +67,11 @@ function bawmrp_ajax_find_posts()
 		}
 		$posttype = get_post_type_object( $post->post_type );
 		$posttype = $posttype->labels->singular_name;
+
+                $category = strip_tags(get_the_category_list(', ', '', $post->ID));
+
 		$html .= '<tr class="found-posts"><td class="found-radio"><input type="checkbox" id="found-'.$post->ID.'" name="found_post_id[]" value="' . esc_attr($post->ID) . '"></td>';
-		$html .= '<td><label for="found-'.$post->ID.'">'.esc_html( $post->post_title ).'</label></td><td>'.esc_html( $posttype ).'</td><td>'.esc_html( $time ).'</td><td>'.esc_html( $stat ).'</td></tr>'."\n\n";
+		$html .= '<td><label for="found-'.$post->ID.'">'.esc_html( $post->post_title ).'</label></td><td>'.esc_html( $posttype ).'</td><td>'.esc_html( $category ).'</td><td>'.esc_html( $time ).'</td><td>'.esc_html( $stat ).'</td></tr>'."\n\n";
 	}
 	$html .= '</tbody></table>';
 	wp_send_json_success( $html );
